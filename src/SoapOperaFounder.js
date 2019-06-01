@@ -29,4 +29,10 @@ class SoapOperaFounder {
   marry () {
     this.soapOperaList.forEach(soapOpera => soapOpera.marry(this.subtitles))
   }
+
+  async run(){
+    await this.scanSoapOpera()
+    await this.scanSubtitle()
+    this.marry()
+  }
 }

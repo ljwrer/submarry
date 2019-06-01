@@ -2,6 +2,9 @@
   "name": "rsub",
   "version": "1.0.0",
   "main": "index.js",
+  "bin": {
+    "marry": "bin/marry.js"
+  },
   "license": "MIT",
   "dependencies": {
     "fs-extra": "^8.0.1",
