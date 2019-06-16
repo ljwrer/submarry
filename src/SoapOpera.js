@@ -1,30 +1,45 @@
-const seReg = require('./config').seReg
 const path = require('path')
+const fs = require('fs-extra')
+const ora = require('ora');
+const spinner = ora('Loading unicorns').start()
 class SoapOpera {
-  constructor (fileName) {
+  constructor (se, fileName) {
     this.fileName = fileName
-    const pathInfo = path.parse(this.fileName)
-    this.prefix = `${pathInfo.dir}${pathInfo.name}`
-    this.se = this.fileName.search(seReg)
+    this.fileInfo = path.parse(this.fileName)
+    this.se = se
   }
 
-  marry(subtitles){
-    const matchSubtitle = subtitles.find(subtitle => {
-      const lowerSubtitle = subtitle.toLowerCase()
-      const lowerSe = this.se.toLowerCase()
-      return lowerSubtitle.includes(lowerSe)
-    })
+  /**
+   *
+   * @param subtitleMap {Map}
+   */
+  async marry(subtitleMap){
+    spinner.info(`find soap opera: ${this.fileName}`)
+    const matchSubtitle = subtitleMap.get(this.se)
     if(matchSubtitle){
-      this.rename(matchSubtitle)
+      spinner.succeed(`find match subtitle: ${matchSubtitle}`)
+      await this.rename(matchSubtitle)
     }else {
-      console.warn('match subtitle not found: ', this.fileName)
+      spinner.warn('match subtitle not found')
     }
   }
 
-  rename(subtitle){
+  async rename(subtitle){
     const ext = path.extname(subtitle)
-    const soapOperaPath = path.join(this.prefix, ext)
-    console.log(`${subtitle} move to ${soapOperaPath}`)
+    const soapOperaPath = path.format({
+      dir: this.fileInfo.dir,
+      name: this.fileInfo.name,
+      ext
+    })
+    if(subtitle !== soapOperaPath){
+      spinner.info(`${subtitle} move to ${soapOperaPath}`)
+      try{
+        await fs.move(subtitle, soapOperaPath)
+        spinner.succeed('move success')
+      }catch (e) {
+        spinner.fail('move fail')
+      }
+    }
   }
 
 }

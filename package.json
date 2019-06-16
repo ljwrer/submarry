@@ -1,5 +1,5 @@
 {
-  "name": "rsub",
+  "name": "submarry",
   "version": "1.0.0",
   "main": "index.js",
   "bin": {
@@ -8,6 +8,7 @@
   "license": "MIT",
   "dependencies": {
     "fs-extra": "^8.0.1",
-    "globby": "^9.2.0"
+    "globby": "^9.2.0",
+    "ora": "^3.4.0"
   }
 }

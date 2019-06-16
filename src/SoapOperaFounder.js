@@ -1,38 +1,48 @@
 const glob = require('globby')
-const SoapOpera = require('SoapOpera')
+const seReg = require('./config').seReg
+const SoapOpera = require('./SoapOpera')
 
 class SoapOperaFounder {
   constructor () {
-    this.soapOperaList = []
-    this.subtitles = []
+    this.soapOperaMap = new Map()
+    this.subtitleMap = new Map()
   }
 
   scanMovie () {
-    return glob('*.(mp4|avi|mkv)')
+    return glob('')
+  }
+
+  async scan(match, map){
+    const files = await glob(match)
+    for(const file of files){
+      const result = seReg.exec(file)
+      if(result){
+        map.set(result[0].toLowerCase(), file)
+      }
+    }
   }
 
   async scanSubtitle () {
-    this.subtitles = await glob('*.(ass|srt)')
+    return this.scan('*.(ass|srt)', this.subtitleMap)
   }
 
-  isSoapOpera (fileName) {
-    const seReg = /s\d+e\d+/i
-    return seReg.test(fileName)
-  }
+
 
   async scanSoapOpera () {
-    const files = await this.scanMovie()
-    const soapOperaFiles = files.filter(this.isSoapOpera)
-    this.soapOperaList = soapOperaFiles.map(file => new SoapOpera(file))
+    return this.scan('*.(mp4|avi|mkv)', this.soapOperaMap)
   }
 
-  marry () {
-    this.soapOperaList.forEach(soapOpera => soapOpera.marry(this.subtitles))
+  async marry () {
+    for(const [se,soapOpera] of this.soapOperaMap){
+      await new SoapOpera(se, soapOpera).marry(this.subtitleMap)
+    }
   }
 
   async run(){
     await this.scanSoapOpera()
     await this.scanSubtitle()
-    this.marry()
+    await this.marry()
   }
 }
+
+module.exports = SoapOperaFounder
